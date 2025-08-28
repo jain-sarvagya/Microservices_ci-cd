@@ -1,0 +1,76 @@
+from flask import Flask, request, jsonify
+from flask_httpauth import HTTPBasicAuth
+import mysql.connector
+
+app = Flask(__name__)
+auth = HTTPBasicAuth()
+
+import os
+
+host = os.getenv("MYSQL_HOST", "localhost")
+user = os.getenv("MYSQL_USER", "root")
+password = os.getenv("MYSQL_PASSWORD", "sar761@SARVAG")
+database = os.getenv("MYSQL_DB", "auth_db")
+
+auth_db = mysql.connector.connect(
+    host=host,
+    user=user,
+    password=password,
+    database=database
+)
+auth_cursor = auth_db.cursor(dictionary=True)
+
+user_db_connections = {}
+logged_in_users = {}  
+
+
+# AUTH SECTION
+
+@auth.verify_password
+def verify_password(username, password):
+    auth_cursor.execute("SELECT * FROM users WHERE username=%s", (username,))
+    user = auth_cursor.fetchone()
+    if not user:
+        return None
+    if user['password_hash'] == password:
+        conn = mysql.connector.connect(
+            host="localhost",
+            user=username,
+            password=password,
+            database=user['db_name']
+        )
+        user_db_connections[username] = conn
+        logged_in_users[username] = user
+        return username
+    return None
+
+
+# PRODUCTS SECTION
+
+@app.route("/products", methods=["GET"])
+@auth.login_required
+def list_products():
+    conn = user_db_connections[auth.current_user()]
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM products")
+    return jsonify(cursor.fetchall())
+
+@app.route("/products/<int:product_id>", methods=["GET"])
+@auth.login_required
+def product_details(product_id):
+    conn = user_db_connections[auth.current_user()]
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM products WHERE id=%s", (product_id,))
+    return jsonify(cursor.fetchone())
+
+@app.route("/products/search", methods=["GET"])
+@auth.login_required
+def search_products():
+    query = request.args.get("q", "")
+    conn = user_db_connections[auth.current_user()]
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM products WHERE name LIKE %s", (f"%{query}%",))
+    return jsonify(cursor.fetchall())
+
+if __name__=="__main__":
+    app.run(debug=True)

@@ -1,0 +1,5 @@
+flask
+flask-httpauth
+mysql-connector-python
+pytest
+request
