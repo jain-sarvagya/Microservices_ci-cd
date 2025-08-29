@@ -1,0 +1,61 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db_init:/docker-entrypoint-initdb.d
+    networks:
+      - microservices-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth_service:
+    build: ./auth_service
+    ports:
+      - "5001:5000"
+    env_file: ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
+  products_service:
+    build: ./products_service
+    ports:
+      - "5002:5000"
+    env_file: ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
+  orders_service:
+    build: ./orders_service
+    ports:
+      - "5003:5000"
+    env_file: ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - microservices-net
+
+volumes:
+  mysql_data:
+
+networks:
+  microservices-net:
+    driver: bridge

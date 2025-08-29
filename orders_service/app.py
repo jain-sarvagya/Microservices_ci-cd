@@ -1,16 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_httpauth import HTTPBasicAuth
 import mysql.connector
+import os
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
 
-import os
-
-host = os.getenv("MYSQL_HOST", "localhost")
-user = os.getenv("MYSQL_USER", "root")
-password = os.getenv("MYSQL_PASSWORD", "sar761@SARVAG")
-database = os.getenv("MYSQL_DB", "auth_db")
+host = os.environ.get("MYSQL_HOST")
+user = os.environ.get("MYSQL_USER")
+password = os.environ.get("MYSQL_PASSWORD")
+database = os.environ.get("MYSQL_DB")
 
 auth_db = mysql.connector.connect(
     host=host,
@@ -33,7 +32,7 @@ def verify_password(username, password):
         return None
     if user['password_hash'] == password:  
         conn = mysql.connector.connect(
-            host="localhost",
+            host=host,
             user=username,
             password=password,
             database=user['db_name']

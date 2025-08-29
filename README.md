@@ -1,93 +1,118 @@
-# microservices-cicd
+# Microservices with Automated CI/CD Pipeline Using GitLab
 
+To address the limitations of monolithic architecture and manual deployment processes. The project involves decomposing a backend application into three independent microservices (Authentication, Products, Orders), containerizing them using Docker, and implementing a fully automated CI/CD pipeline with GitLab to streamline the entire build, test, and deployment lifecycle.
 
+## Statement about the Problem
+Traditional monolithic architectures are inherently rigid and difficult to scale, creating development shortcomings. When combined with manual, error-prone deployment processes, this leads to slow release cycles, inconsistent application environments, and an inability to deliver new features rapidly and reliably. 
+This project directly confronts these inefficiencies by containerizing each microservice with Docker, managing the multi-service environment with Docker Compose, and creating a fully automated GitLab CI/CD pipeline to streamline the entire build and deployment process.
 
-## Getting started
+## Objectives:
+-	Implement three microservices: (authentication, orders and product) using python Flask framework.
+-	Containerize each microservice using Docker to ensure environment consistency.
+-	Automate the deployment lifecycle by setting up a GitLab CI/CD pipeline to:
+-	Build Docker images for each service on every push to GitLab Container Registry.
+-	Automatically deploy the images to a remote server using Docker Compose.
+ 
+## Scope:
+-	Three microservices: Authentication Service, Orders microservice, Product Service microservice
+-	The implementation is strictly backend-only.
+-	The deployment orchestration is handled by Docker Compose.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## Project Structure
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/g24534335/microservices-cicd.git
-git branch -M main
-git push -uf origin main
+microservices-cicd/
+├── auth_service/
+│   ├── app.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── products_service/
+│   ├── app.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── orders_service/
+│   ├── app.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── db_init/
+│   └── init.sql
+├── .gitignore
+├── .gitlab-ci.yml 
+└── docker-compose.yml
 ```
 
-## Integrate with your tools
+## Tech Stack
 
-- [ ] [Set up project integrations](https://gitlab.com/g24534335/microservices-cicd/-/settings/integrations)
+- Backend: Python (Flask Framework)
+- Containerization: Docker & Docker Compose
+- CI/CD: GitLab CI/CD
+- Database: MySQL
 
-## Collaborate with your team
+## Getting Started: Local Setup
+Follow these steps to get the project running on your local machine for development and testing.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### Prerequisites
+Make sure you have the following software installed on your system:
 
-## Test and Deploy
+- Git
+- Docker
+- Docker Compose
 
-Use the built-in continuous integration in GitLab.
+### Installation & Running
+* **Clone the repository:**
+     ```bash
+        git clone <your-repository-url>
+        cd microservices-cicd
+        ```
+* **Build and Run the Containers:**
+    * Use Docker Compose to build the images and start all the services.
+        ```bash
+            docker-compose up --build
+        ```
+    * The `--build` flag forces a rebuild of the Docker images.
+    * To run the containers in the background, use the `-d` (detached) flag:
+        ```bash
+        docker-compose up --build -d
+        ```
+* **Verify the Services:**
+    * Check if all containers are running correctly.
+        ```bash
+        docker-compose ps
+        ```
+    * You can also view the logs for a specific service:
+        ```bash
+        docker-compose logs -f auth_service
+        ```
+    * The services should now be accessible on their respective ports as defined in `docker-compose.yml`.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+## API Endpoints
 
-***
+### Authentication Service
 
-# Editing this README
+| Method | Endpoint | Description |
+| :----- | :----- | :----- |
+| POST | `/register` | Register a new user. |
+| POST | `/login` | Log in a user. |
+| GET | `/logout` | Log out the current user. |
+| GET | `/profile` | Get the current user's profile. |
+| PUT | `/profile` | Update the user's profile. |
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### Orders Service
 
-## Suggestions for a good README
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| POST | `/orders` | Create a new order. |
+| GET | `/orders/user/:user_id` | Get all orders for a specific user. |
+| PATCH | `/orders/:order_id/status` | Update the status of a specific order. |
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Product Service
 
-## Name
-Choose a self-explaining name for your project.
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| GET | `/products` | Get a list of all products. |
+| GET | `/products/:product_id` | Get details of a specific product. |
+| GET | `/products/search?q={query}` | Search for products based on a query. |
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Conclusion
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This is a final project made for the Job Value Added Course - DevOps Cloud training held in June - July 2025 by GLA University and Coding Blocks. 

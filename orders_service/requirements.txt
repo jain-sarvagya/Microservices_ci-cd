@@ -2,4 +2,5 @@ flask
 flask-httpauth
 mysql-connector-python
 pytest
-request
+requests
+gunicorn
