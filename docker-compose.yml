@@ -1,9 +1,11 @@
+version: "3.9"
+
 services:
   db:
     image: mysql:8.0
     container_name: mysql_db
     ports:
-      - "3306:3306"
+      - "3307:3306"  
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -15,10 +17,11 @@ services:
     networks:
       - microservices-net
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$MYSQL_ROOT_PASSWORD || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   auth_service:
     build: ./auth_service
