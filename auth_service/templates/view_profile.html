@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ username }}'s Profile</h2>
+{% if profile %}
+    <div class="profile-card">
+        <h3>{{ profile.name }}</h3>
+        <p>{{ profile.bio }}</p>
+    </div>
+{% else %}
+    <p>No profile found. <a href="{{ url_for('add_profile') }}">Add one here.</a></p>
+{% endif %}
+{% endblock %}

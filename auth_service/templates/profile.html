@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Profile</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #c0c0aa, #1cefff);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .profile-container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
+      width: 350px;
+      text-align: center;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .profile-info {
+      margin-bottom: 30px;
+      text-align: left;
+    }
+
+    .profile-info p {
+      margin: 8px 0;
+      color: #444;
+    }
+
+    .btn {
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background: #0056b3;
+    }
+
+    .logout {
+      background: #e63946;
+    }
+
+    .logout:hover {
+      background: #c62828;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <h2>👤 Profile</h2>
+
+    <div class="profile-info">
+      <p><strong>Username:</strong> {{ user.username }}</p>
+      <p><strong>Database:</strong> {{ user.db_name }}</p>
+      <p><strong>Created At:</strong> {{ user.created_at }}</p>
+    </div>
+
+    <div>
+      <a href="{{ url_for('logout_page') }}" class="btn logout">Logout</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Details</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>👁️ Product Details</h2>
+
+    <form id="detailsForm">
+      <label>Enter Product ID:</label>
+      <input type="number" id="product_id" required>
+      <button type="submit">Get Details</button>
+    </form>
+
+    <div id="result" class="result-box"></div>
+
+    <a href="/list_products_page" class="btn">⬅️ Back to Products</a>
+  </div>
+
+  <script>
+    document.getElementById("detailsForm").addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const product_id = document.getElementById("product_id").value;
+      const authHeader = "Basic " + btoa(prompt("Enter username:password"));
+      const res = await fetch(`/products/${product_id}`, {
+        headers: { "Authorization": authHeader }
+      });
+
+      const data = await res.json();
+      document.getElementById("result").innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    });
+  </script>
+</body>
+</html>

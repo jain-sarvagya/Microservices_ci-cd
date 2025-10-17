@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All Products</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>📋 Product List</h2>
+
+    <button id="loadProducts">Load Products</button>
+    <table id="productsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Stock</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <a href="/add_product_page" class="btn">➕ Add New Product</a>
+  </div>
+
+  <script>
+    document.getElementById("loadProducts").addEventListener("click", async () => {
+      const authHeader = "Basic " + btoa(prompt("Enter username:password"));
+      const res = await fetch("/products", { headers: { "Authorization": authHeader } });
+      const data = await res.json();
+
+      const tbody = document.querySelector("#productsTable tbody");
+      tbody.innerHTML = "";
+      data.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.id}</td>
+          <td>${p.name}</td>
+          <td>${p.price}</td>
+          <td>${p.stock}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  </script>
+</body>
+</html>

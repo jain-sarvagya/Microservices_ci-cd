@@ -123,6 +123,23 @@ def product_post():
     cur.close()
     return jsonify({"message": "Product added successfully", "id": last_id}), 201
 
+from flask import render_template
+
+@app.route("/add_product_page")
+def add_product_page():
+    return render_template("add_product.html")
+
+@app.route("/list_products_page")
+def list_products_page():
+    return render_template("list_products.html")
+
+@app.route("/search_products_page")
+def search_products_page():
+    return render_template("search_products.html")
+
+@app.route("/product_details_page")
+def product_details_page():
+    return render_template("product_details.html")
 
 
 

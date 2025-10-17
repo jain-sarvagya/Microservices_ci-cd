@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Products</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>🔍 Search Products</h2>
+
+    <form id="searchForm">
+      <input type="text" id="query" placeholder="Enter product name" required>
+      <button type="submit">Search</button>
+    </form>
+
+    <table id="searchTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Stock</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <a href="/list_products_page" class="btn">⬅️ Back to Products</a>
+  </div>
+
+  <script>
+    document.getElementById("searchForm").addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const q = document.getElementById("query").value;
+      const authHeader = "Basic " + btoa(prompt("Enter username:password"));
+      const res = await fetch(`/products/search?q=${q}`, {
+        headers: { "Authorization": authHeader }
+      });
+      const data = await res.json();
+
+      const tbody = document.querySelector("#searchTable tbody");
+      tbody.innerHTML = "";
+      data.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.id}</td>
+          <td>${p.name}</td>
+          <td>${p.price}</td>
+          <td>${p.stock}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  </script>
+</body>
+</html>

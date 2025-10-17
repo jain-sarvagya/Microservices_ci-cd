@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Orders</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>📋 My Orders</h2>
+
+    <form id="fetchForm">
+      <label>Enter User ID:</label>
+      <input type="number" id="user_id" required>
+      <button type="submit">Fetch Orders</button>
+    </form>
+
+    <table id="ordersTable">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Product ID</th>
+          <th>Quantity</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <a href="/create_order_page" class="btn">⬅️ Back to Create Order</a>
+  </div>
+
+  <script>
+    document.getElementById("fetchForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const user_id = document.getElementById("user_id").value;
+      const authHeader = 'Basic ' + btoa(prompt("Enter username:password"));
+
+      const res = await fetch(`/orders/user/${user_id}`, {
+        headers: { "Authorization": authHeader }
+      });
+
+      const data = await res.json();
+      const tbody = document.querySelector("#ordersTable tbody");
+      tbody.innerHTML = "";
+
+      data.forEach(order => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${order.id}</td>
+          <td>${order.product_id}</td>
+          <td>${order.quantity}</td>
+          <td>${order.status}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  </script>
+</body>
+</html>

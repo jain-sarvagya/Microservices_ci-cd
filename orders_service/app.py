@@ -89,51 +89,54 @@ def verify_password(username, password_plain):
 #     conn.commit()
 #     return jsonify({"message": "Order created, stock updated"})
 
+
 @app.route("/orders", methods=["POST"])
 @auth.login_required
 def create_order():
-    cur = user_db_connections[auth.current_user()].cursor()
+    data = request.json
+    conn = user_db_connections[auth.current_user()]
+    cursor = conn.cursor(dictionary=True)
 
-    product_id = request.json["product_id"]
-    user_id = request.json["user_id"]
-    quantity = request.json["quantity"]
+    # Validate input
+    if not all(k in data for k in ("product_id", "user_id", "quantity")):
+        return jsonify({"error": "product_id, user_id, and quantity are required"}), 400
+
+    try:
+        quantity = int(data['quantity'])
+        product_id = int(data['product_id'])
+        user_id = int(data['user_id'])
+    except (ValueError, TypeError):
+        return jsonify({"error": "product_id, user_id, and quantity must be integers"}), 400
 
     # 1. Check stock
-    cur.execute("SELECT stock FROM products WHERE id = %s", (product_id,))
-    result = cur.fetchone()
+    cursor.execute("SELECT stock FROM products WHERE id=%s", (product_id,))
+    product = cursor.fetchone()
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
 
-    if not result:
-        return jsonify({"message": "Product not found"}), 404
-
-    current_stock = result[0]
-
+    current_stock = int(product['stock'])
     if quantity > current_stock:
-        return jsonify({"message": "Not enough stock"}), 400
+        return jsonify({"error": "Not enough stock"}), 400
 
+    # 2. Reduce stock
     new_stock = current_stock - quantity
+    cursor.execute("UPDATE products SET stock=%s WHERE id=%s", (new_stock, product_id))
 
-    # 2. Create order
-    cur.execute(
+    # 3. Create order
+    cursor.execute(
         "INSERT INTO orders (user_id, product_id, quantity, status) VALUES (%s, %s, %s, %s)",
-        (user_id, product_id, quantity, "pending")
+        (user_id, product_id, quantity, 'pending')
     )
 
-    # 3. Update stock
-    cur.execute("UPDATE products SET stock = %s WHERE id = %s", (new_stock, product_id))
-
-    # 4. Get last inserted order id
-    cur.execute("SELECT LAST_INSERT_ID()")
-    order_id = cur.fetchone()[0]
-
-    user_db_connections[auth.current_user()].commit()
-    cur.close()
+    conn.commit()
+    cursor.close()
 
     return jsonify({
-        "message": "Order created successfully",
-        "order_id": order_id,
-        "stock_after_purchase": new_stock
+        "message": "Order created and stock updated",
+        "product_id": product_id,
+        "quantity_ordered": quantity,
+        "stock_after_order": new_stock
     }), 201
-
 
 
 @app.route("/orders/user/<int:user_id>", methods=["GET"])
@@ -155,5 +158,23 @@ def update_order_status(order_id):
     return jsonify({"message": "Order status updated"})
 
 
+from flask import render_template
+
+@app.route("/create_order_page")
+def create_order_page():
+    return render_template("create_order.html")
+
+@app.route("/view_orders_page")
+def view_orders_page():
+    return render_template("view_order.html")
+
+@app.route("/manage_orders.html")
+def manage_orders_page():
+    return render_template("manage_orders.html")
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+
